@@ -119,35 +119,32 @@ class VideoTuner:
             self.upper_green = np.array([h_high, s_high, v_high])
             self.min_area = min_area
             
-            # Seek to frame if trackbar moved
+            # Handle seeking logic
+            # Only seek if user manually moved the frame trackbar
             if frame_pos != self.current_frame:
-                self.seek_frame(frame_pos)
+                # User moved trackbar - jump to that frame
+                self.cap.set(cv2.CAP_PROP_POS_FRAMES, frame_pos)
+                self.current_frame = frame_pos
+                paused = True  # Pause when manually seeking
+            elif paused:
+                # When paused, stay on current frame by seeking before read
+                self.cap.set(cv2.CAP_PROP_POS_FRAMES, self.current_frame)
+            # else: when playing, don't seek - let video naturally advance
 
-            # When paused, we need to seek back to show the same frame
-            # When playing, we let the video naturally advance
-            if paused:
-                # Seek to current frame - cap.read() will then return this frame
-                # But CAP_PROP_POS_FRAMES returns position AFTER read, so seek to current-1
-                if self.current_frame > 0:
-                    self.cap.set(cv2.CAP_PROP_POS_FRAMES, self.current_frame - 1)
-                else:
-                    self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-
-            # Read frame (advances position by 1)
+            # Read next frame
             ret, frame = self.cap.read()
 
             if not ret:
-                # Loop back to start
-                self.seek_frame(0)
+                # End of video - loop back to start
+                self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                self.current_frame = 0
                 continue
 
-            # Update current position (this is the frame we just read)
-            if paused:
-                # Don't update when paused - stay on same frame number
-                pass
-            else:
-                # When playing, update to actual position
-                self.current_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES)) - 1
+            # Update current frame counter
+            # When playing: advance frame counter
+            # When paused: stay on same frame (already set above)
+            if not paused:
+                self.current_frame += 1
             
             # Run detection
             annotated, mask, weed_count = self.detect_weeds(frame)
@@ -179,9 +176,8 @@ class VideoTuner:
             
             cv2.imshow(window, display)
 
-            # Update frame trackbar (without triggering seek)
-            if frame_pos == self.current_frame:
-                cv2.setTrackbarPos('Frame', window, self.current_frame)
+            # Update frame trackbar to match current position
+            cv2.setTrackbarPos('Frame', window, self.current_frame)
 
             # Handle keyboard input - always wait at least 30ms to allow slider updates
             wait_time = 30 if paused else 30
