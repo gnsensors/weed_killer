@@ -95,7 +95,7 @@ class VideoTuner:
         print("  DOWN   - Backward 10 frames")
         print("  r      - Reset parameters to defaults")
         print("  s      - Save current settings")
-        print("  q      - Quit")
+        print("  q/ESC  - Quit (or click X on window)")
         print("\nTIPS:")
         print("  - Click on the VIDEO area (not sliders) for keyboard controls")
         print("  - Adjust sliders in real-time - changes apply immediately")
@@ -166,6 +166,11 @@ class VideoTuner:
             
             cv2.imshow(window, display)
 
+            # Check if window was closed by user (X button)
+            if cv2.getWindowProperty(window, cv2.WND_PROP_VISIBLE) < 1:
+                print("\nWindow closed by user")
+                break
+
             # Update frame trackbar (without triggering seek)
             if frame_pos == self.current_frame:
                 cv2.setTrackbarPos('Frame', window, self.current_frame)
@@ -173,8 +178,8 @@ class VideoTuner:
             # Handle keyboard input - always wait at least 30ms to allow slider updates
             wait_time = 30 if paused else 30
             key = cv2.waitKey(wait_time) & 0xFF
-            
-            if key == ord('q'):
+
+            if key == ord('q') or key == 27:  # q or ESC
                 break
             elif key == ord(' '):
                 paused = not paused
