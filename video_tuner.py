@@ -119,14 +119,21 @@ class VideoTuner:
             self.upper_green = np.array([h_high, s_high, v_high])
             self.min_area = min_area
             
-            # Seek to frame if trackbar moved or if paused (to stay on same frame)
+            # Seek to frame if trackbar moved
             if frame_pos != self.current_frame:
                 self.seek_frame(frame_pos)
-            elif paused:
-                # When paused, re-seek to current frame to prevent auto-advance
-                self.seek_frame(self.current_frame)
 
-            # Read frame
+            # When paused, we need to seek back to show the same frame
+            # When playing, we let the video naturally advance
+            if paused:
+                # Seek to current frame - cap.read() will then return this frame
+                # But CAP_PROP_POS_FRAMES returns position AFTER read, so seek to current-1
+                if self.current_frame > 0:
+                    self.cap.set(cv2.CAP_PROP_POS_FRAMES, self.current_frame - 1)
+                else:
+                    self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+
+            # Read frame (advances position by 1)
             ret, frame = self.cap.read()
 
             if not ret:
@@ -134,7 +141,13 @@ class VideoTuner:
                 self.seek_frame(0)
                 continue
 
-            self.current_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
+            # Update current position (this is the frame we just read)
+            if paused:
+                # Don't update when paused - stay on same frame number
+                pass
+            else:
+                # When playing, update to actual position
+                self.current_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES)) - 1
             
             # Run detection
             annotated, mask, weed_count = self.detect_weeds(frame)
