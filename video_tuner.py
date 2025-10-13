@@ -75,6 +75,12 @@ class VideoTuner:
         window = "Video Tuner - Use trackbars and keyboard"
         cv2.namedWindow(window, cv2.WINDOW_NORMAL)
         cv2.resizeWindow(window, 1600, 900)
+
+        # Try to set focus on window (may not work on all systems)
+        try:
+            cv2.setWindowProperty(window, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_NORMAL)
+        except:
+            pass
         
         # Create trackbars
         cv2.createTrackbar('H Low', window, self.lower_green[0], 179, lambda x: None)
@@ -87,6 +93,8 @@ class VideoTuner:
         cv2.createTrackbar('Frame', window, 0, self.total_frames-1, lambda x: None)
         
         print("\n=== Video Tuning Mode ===")
+        print("\n*** IMPORTANT: Click on the VIDEO IMAGE area to enable keyboard controls ***")
+        print("    (Not on the sliders or window border - click on the actual video)\n")
         print("Keyboard controls:")
         print("  SPACE      - Play/Pause")
         print("  D          - Next frame (or RIGHT arrow)")
@@ -96,11 +104,10 @@ class VideoTuner:
         print("  P          - Save Parameters to config file")
         print("  R          - Reset parameters to defaults")
         print("  Q / ESC    - Quit (or click X on window)")
-        print("\nNOTE: Arrow keys work but may show as letters in debug output")
         print("\nTIPS:")
-        print("  - Click on the VIDEO area (not sliders) for keyboard controls")
         print("  - Adjust sliders in real-time - changes apply immediately")
-        print("  - Watch the middle panel (mask) to see what's being detected\n")
+        print("  - Watch the middle panel (mask) to see what's being detected")
+        print("  - Debug mode enabled: You'll see 'Key pressed: X' messages\n")
         
         paused = True
         
@@ -195,8 +202,11 @@ class VideoTuner:
                 break
 
             # Debug: show key codes when pressed (uncomment to debug keyboard issues)
-            # if key != 255:
-            #     print(f"Key pressed: {key} (char: {chr(key) if key < 128 else 'N/A'})")
+            if key != 255:
+                print(f"Key pressed: {key} (char: {chr(key) if key < 128 else 'N/A'})")
+            else:
+                # Show that we're polling (should see this constantly)
+                pass  # Comment out to reduce spam: print(".", end="", flush=True)
 
             if key == 27:  # ESC only (not Q which conflicts with left arrow)
                 print("\nQuitting...")
