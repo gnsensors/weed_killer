@@ -206,18 +206,16 @@ class VideoTuner:
                 paused = True
                 if self.current_frame < self.total_frames - 1:
                     self.current_frame += 1
-                    self.seek_frame(self.current_frame)
             elif key == 81:  # Left arrow
                 paused = True
                 if self.current_frame > 0:
                     self.current_frame -= 1
-                    self.seek_frame(self.current_frame)
             elif key == 82:  # Up arrow
                 paused = True
-                self.seek_frame(min(self.current_frame + 10, self.total_frames - 1))
+                self.current_frame = min(self.current_frame + 10, self.total_frames - 1)
             elif key == 84:  # Down arrow
                 paused = True
-                self.seek_frame(max(self.current_frame - 10, 0))
+                self.current_frame = max(self.current_frame - 10, 0)
             elif key == ord('r'):
                 # Reset to defaults
                 cv2.setTrackbarPos('H Low', window, 35)
