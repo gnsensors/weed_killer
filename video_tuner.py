@@ -179,11 +179,6 @@ class VideoTuner:
             
             cv2.imshow(window, display)
 
-            # Check if window was closed by user (X button)
-            if cv2.getWindowProperty(window, cv2.WND_PROP_VISIBLE) < 1:
-                print("\nWindow closed by user")
-                break
-
             # Update frame trackbar (without triggering seek)
             if frame_pos == self.current_frame:
                 cv2.setTrackbarPos('Frame', window, self.current_frame)
@@ -192,7 +187,22 @@ class VideoTuner:
             wait_time = 30 if paused else 30
             key = cv2.waitKey(wait_time) & 0xFF
 
-            if key == ord('q') or key == 27:  # q or ESC
+            # Check if window was closed by user (X button) - check AFTER waitKey
+            try:
+                if cv2.getWindowProperty(window, cv2.WND_PROP_VISIBLE) < 1:
+                    print("\nWindow closed by user")
+                    break
+            except:
+                # Window was destroyed
+                print("\nWindow destroyed")
+                break
+
+            # Debug: show key codes when pressed
+            if key != 255:
+                print(f"Key pressed: {key} (char: {chr(key) if key < 128 else 'N/A'})")
+
+            if key == ord('q') or key == ord('Q') or key == 27:  # q, Q, or ESC
+                print("\nQuitting...")
                 break
             elif key == ord(' '):
                 paused = not paused
