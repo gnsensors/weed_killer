@@ -88,14 +88,15 @@ class VideoTuner:
         
         print("\n=== Video Tuning Mode ===")
         print("Keyboard controls:")
-        print("  SPACE  - Play/Pause")
-        print("  RIGHT  - Next frame")
-        print("  LEFT   - Previous frame")
-        print("  UP     - Forward 10 frames")
-        print("  DOWN   - Backward 10 frames")
-        print("  r      - Reset parameters to defaults")
-        print("  s      - Save current settings")
-        print("  q/ESC  - Quit (or click X on window)")
+        print("  SPACE      - Play/Pause")
+        print("  D          - Next frame (or RIGHT arrow)")
+        print("  A          - Previous frame (or LEFT arrow)")
+        print("  W          - Forward 10 frames (or UP arrow)")
+        print("  S          - Backward 10 frames (or DOWN arrow)")
+        print("  P          - Save Parameters to config file")
+        print("  R          - Reset parameters to defaults")
+        print("  Q / ESC    - Quit (or click X on window)")
+        print("\nNOTE: Arrow keys work but may show as letters in debug output")
         print("\nTIPS:")
         print("  - Click on the VIDEO area (not sliders) for keyboard controls")
         print("  - Adjust sliders in real-time - changes apply immediately")
@@ -197,26 +198,29 @@ class VideoTuner:
             # if key != 255:
             #     print(f"Key pressed: {key} (char: {chr(key) if key < 128 else 'N/A'})")
 
-            if key == ord('q') or key == ord('Q') or key == 27:  # q, Q, or ESC
+            if key == 27:  # ESC only (not Q which conflicts with left arrow)
                 print("\nQuitting...")
                 break
             elif key == ord(' '):
                 paused = not paused
-            elif key == 83:  # Right arrow
+            elif key == 83 or key == ord('d') or key == ord('D'):  # Right arrow or D
                 paused = True
                 if self.current_frame < self.total_frames - 1:
                     self.current_frame += 1
-            elif key == 81:  # Left arrow
+            elif key == 81 or key == ord('a') or key == ord('A'):  # Left arrow or A
                 paused = True
                 if self.current_frame > 0:
                     self.current_frame -= 1
-            elif key == 82:  # Up arrow
+            elif key == 82 or key == ord('w') or key == ord('W'):  # Up arrow or W
                 paused = True
                 self.current_frame = min(self.current_frame + 10, self.total_frames - 1)
-            elif key == 84:  # Down arrow
+            elif key == 84 or key == ord('s') or key == ord('S'):  # Down arrow or S
                 paused = True
                 self.current_frame = max(self.current_frame - 10, 0)
-            elif key == ord('r'):
+            elif key == ord('q') or key == ord('Q'):  # Q to quit
+                print("\nQuitting...")
+                break
+            elif key == ord('r') or key == ord('R'):
                 # Reset to defaults
                 cv2.setTrackbarPos('H Low', window, 35)
                 cv2.setTrackbarPos('H High', window, 85)
@@ -226,7 +230,8 @@ class VideoTuner:
                 cv2.setTrackbarPos('V High', window, 255)
                 cv2.setTrackbarPos('Min Area', window, 100)
                 print("Reset to default parameters")
-            elif key == ord('s'):
+            elif key == ord('p') or key == ord('P'):
+                # P for "Parameters" - save settings
                 self.save_settings()
                 print("Settings saved!")
 
