@@ -73,7 +73,8 @@ class VideoTuner:
     def run(self):
         """Run interactive tuning interface"""
         window = "Video Tuner - Use trackbars and keyboard"
-        cv2.namedWindow(window)
+        cv2.namedWindow(window, cv2.WINDOW_NORMAL)
+        cv2.resizeWindow(window, 1600, 900)
         
         # Create trackbars
         cv2.createTrackbar('H Low', window, self.lower_green[0], 179, lambda x: None)
