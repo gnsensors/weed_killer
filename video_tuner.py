@@ -119,18 +119,21 @@ class VideoTuner:
             self.upper_green = np.array([h_high, s_high, v_high])
             self.min_area = min_area
             
-            # Seek to frame if trackbar moved
+            # Seek to frame if trackbar moved or if paused (to stay on same frame)
             if frame_pos != self.current_frame:
                 self.seek_frame(frame_pos)
-            
+            elif paused:
+                # When paused, re-seek to current frame to prevent auto-advance
+                self.seek_frame(self.current_frame)
+
             # Read frame
             ret, frame = self.cap.read()
-            
+
             if not ret:
                 # Loop back to start
                 self.seek_frame(0)
                 continue
-            
+
             self.current_frame = int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
             
             # Run detection
@@ -204,9 +207,9 @@ class VideoTuner:
             elif key == ord('s'):
                 self.save_settings()
                 print("Settings saved!")
-            
-            if not paused:
-                self.current_frame += 1
+
+            # Frame advancement happens automatically via cap.read() when not paused
+            # No need to manually increment current_frame
         
         self.cap.release()
         cv2.destroyAllWindows()
