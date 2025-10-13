@@ -110,7 +110,8 @@ class VideoTuner:
         print("  - Debug mode enabled: You'll see 'Key pressed: X' messages\n")
         
         paused = True
-        
+        last_trackbar_pos = 0  # Track previous trackbar position to detect user changes
+
         while True:
             # Get current parameters from trackbars
             h_low = cv2.getTrackbarPos('H Low', window)
@@ -128,9 +129,10 @@ class VideoTuner:
             self.min_area = min_area
             
             # Handle seeking logic
-            # Only seek if user manually moved the frame trackbar
-            if frame_pos != self.current_frame:
-                # User moved trackbar - jump to that frame
+            # Only seek if user MANUALLY moved the frame trackbar (not programmatic update)
+            if frame_pos != last_trackbar_pos and frame_pos != self.current_frame:
+                # User manually moved trackbar - jump to that frame
+                print(f"Trackbar moved by user: {last_trackbar_pos} -> {frame_pos}")
                 self.cap.set(cv2.CAP_PROP_POS_FRAMES, frame_pos)
                 self.current_frame = frame_pos
                 paused = True  # Pause when manually seeking
@@ -186,6 +188,7 @@ class VideoTuner:
 
             # Update frame trackbar to match current position
             cv2.setTrackbarPos('Frame', window, self.current_frame)
+            last_trackbar_pos = self.current_frame  # Remember our update to avoid false detection
 
             # Handle keyboard input - always wait at least 30ms to allow slider updates
             wait_time = 30 if paused else 30
@@ -217,16 +220,20 @@ class VideoTuner:
                 paused = True
                 if self.current_frame < self.total_frames - 1:
                     self.current_frame += 1
+                    print(f"Frame advanced to: {self.current_frame}")
             elif key == 81 or key == ord('a') or key == ord('A'):  # Left arrow or A
                 paused = True
                 if self.current_frame > 0:
                     self.current_frame -= 1
+                    print(f"Frame back to: {self.current_frame}")
             elif key == 82 or key == ord('w') or key == ord('W'):  # Up arrow or W
                 paused = True
                 self.current_frame = min(self.current_frame + 10, self.total_frames - 1)
+                print(f"Frame forward 10 to: {self.current_frame}")
             elif key == 84 or key == ord('s') or key == ord('S'):  # Down arrow or S
                 paused = True
                 self.current_frame = max(self.current_frame - 10, 0)
+                print(f"Frame back 10 to: {self.current_frame}")
             elif key == ord('q') or key == ord('Q'):  # Q to quit
                 print("\nQuitting...")
                 break
