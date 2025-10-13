@@ -197,9 +197,9 @@ class VideoTuner:
                 print("\nWindow destroyed")
                 break
 
-            # Debug: show key codes when pressed
-            if key != 255:
-                print(f"Key pressed: {key} (char: {chr(key) if key < 128 else 'N/A'})")
+            # Debug: show key codes when pressed (uncomment to debug keyboard issues)
+            # if key != 255:
+            #     print(f"Key pressed: {key} (char: {chr(key) if key < 128 else 'N/A'})")
 
             if key == ord('q') or key == ord('Q') or key == 27:  # q, Q, or ESC
                 print("\nQuitting...")
