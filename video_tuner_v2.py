@@ -286,10 +286,10 @@ class VideoTunerStateMachine:
                 self.playback_state = PlaybackState.PAUSED
                 self.input_handler.last_trackbar_frame = trackbar_frame_value
 
-    def render_display(self, frame, mask, weed_count, trackbar_values):
+    def render_display(self, original, annotated, mask, weed_count, trackbar_values):
         """Create display with all panels and overlays"""
         mask_bgr = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
-        display = np.hstack([frame, mask_bgr, mask_bgr])  # Three panels
+        display = np.hstack([original, mask_bgr, annotated])  # Three panels: original, mask, annotated
 
         # Add info overlay
         info_text = [
@@ -369,8 +369,8 @@ class VideoTunerStateMachine:
             # Run detection
             annotated, mask, weed_count = self.detect_weeds(frame)
 
-            # Render display
-            display = self.render_display(annotated, mask, weed_count, trackbar_values)
+            # Render display (original, annotated, mask)
+            display = self.render_display(frame, annotated, mask, weed_count, trackbar_values)
 
             # Show display
             cv2.imshow(self.window_name, display)
