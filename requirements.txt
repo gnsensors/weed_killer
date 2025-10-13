@@ -8,5 +8,8 @@ numpy>=1.24.0
 # Web interface (optional)
 flask>=3.0.0
 
+# Network streaming
+requests>=2.31.0
+
 # For Raspberry Pi Camera (optional - only needed on Pi)
 # picamera2>=0.3.0
