@@ -96,7 +96,10 @@ class VideoTuner:
         print("  r      - Reset parameters to defaults")
         print("  s      - Save current settings")
         print("  q      - Quit")
-        print("\nAdjust trackbars to tune detection\n")
+        print("\nTIPS:")
+        print("  - Click on the VIDEO area (not sliders) for keyboard controls")
+        print("  - Adjust sliders in real-time - changes apply immediately")
+        print("  - Watch the middle panel (mask) to see what's being detected\n")
         
         paused = True
         
@@ -159,12 +162,13 @@ class VideoTuner:
                        (0, 255, 0) if not paused else (0, 0, 255), 2)
             
             cv2.imshow(window, display)
-            
-            # Update frame trackbar
-            cv2.setTrackbarPos('Frame', window, self.current_frame)
-            
-            # Handle keyboard input
-            wait_time = 1 if not paused else 0
+
+            # Update frame trackbar (without triggering seek)
+            if frame_pos == self.current_frame:
+                cv2.setTrackbarPos('Frame', window, self.current_frame)
+
+            # Handle keyboard input - always wait at least 30ms to allow slider updates
+            wait_time = 30 if paused else 30
             key = cv2.waitKey(wait_time) & 0xFF
             
             if key == ord('q'):
