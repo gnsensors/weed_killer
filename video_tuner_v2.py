@@ -149,7 +149,7 @@ class VideoTunerStateMachine:
         self.lower_green = np.array([35, 40, 40])
         self.upper_green = np.array([85, 255, 255])
         self.min_area = 100
-        self.max_area = 50000
+        self.max_area = 50000000000
 
         # UI setup
         self.window_name = "Video Tuner - Click video to enable keys"
